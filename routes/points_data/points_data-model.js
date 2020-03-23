@@ -15,5 +15,5 @@ function find() {
 }
 
 function findCoordinates(){
-    return db("points_data").select('longitude','latitude');
+    return db("points_data").select('longitude','latitude').limit(10);
 }
