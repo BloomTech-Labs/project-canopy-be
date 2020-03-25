@@ -19,6 +19,17 @@ router.get('/coordinates', (req,res)=>{
     })
 });
 
+router.get('/congo_coordinates', (req, res) => {
+    points_data.findCongoPoints()
+        .then(points => {
+            res.status(200).json(points)
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({ error:'Failed to retrieve the data'})
+        })
+})
+
 
 
 module.exports = router;
