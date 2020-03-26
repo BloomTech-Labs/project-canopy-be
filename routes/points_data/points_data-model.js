@@ -20,8 +20,8 @@ function findCoordinates(){
 }
 function findCongoPoints(){
     return db("points_data")
-        .where('longitude', '>', -4.203786185310264)
-        .andWhere('longitude', '<', 39.85918618530923)
-        .andWhere('latitude', '>', -8.821043355800043)
-        .andWhere('latitude', '<', 8.821043355801251)
+        .where('longitude', '>', 8.365347)
+        .andWhere('longitude', '<', 28.616874)
+        .andWhere('latitude', '>', -4.784469)
+        .andWhere('latitude', '<', 10.141932)
 }

@@ -28,8 +28,7 @@ router.get('/congo_coordinates', (req, res) => {
             console.log(err);
             res.status(500).json({ error:'Failed to retrieve the data'})
         })
-})
-
+});
 
 
 module.exports = router;
