@@ -15,10 +15,14 @@ const assessments=require('./routes/assessments/assessments')
 
 const point_data=require('./routes/points_data/points_data')
 
+const th_s=require('./routes/threatened_species/th_s_route');
+
 server.use('/one', routerOne);
 
 
 server.use('/assessments', assessments);
+
+server.use('/th_s', th_s);
 
 server.use('/point_data', point_data);
 
