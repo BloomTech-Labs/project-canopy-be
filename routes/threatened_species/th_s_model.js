@@ -13,8 +13,8 @@ function classCountByCountry(country){
         .groupBy('t.className')
         .whereIn("a.redlistCategory",["Critically Endangered", "Endangered", "Vulnerable"])
         .andWhere('c.name', country)
-        .join('taxonomy as t', "a.internalTaxonId", "t.internalTaxonId")
-        .join("countries as c", "a.internalTaxonId", "c.internalTaxonId")
+        .join('taxonomy as t', "a.scientificName", "t.scientificName")
+        .join("countries as c", "a.scientificName", "c.scientificName")
     .then(countryCount => {
         const counts = countryCount.map(item => {
             return {
