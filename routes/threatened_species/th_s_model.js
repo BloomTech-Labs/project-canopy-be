@@ -19,15 +19,15 @@ function classCountByCountry(country){
         const counts = countryCount.map(item => {
             return {
                 className: item.className,
-                count: item.classCount
+                totalThreatened: item.classCount
             }
         })
         return {
             country: country,
-            counts: counts
+            classes: counts
         }
     })
-}
+};
 
 function classCountAllCountries() {
     const crbCountries = ['Cameroon', 'Congo, The Democratic Republic of the', 'Gabon', 'Congo', 'Central African Republic', 'Equatorial Guinea'];
@@ -41,4 +41,8 @@ function classCountAllCountries() {
             })
     });
     return allClassCountryCounts;
+};
+
+function classCountByHabitat(){
+
 }
