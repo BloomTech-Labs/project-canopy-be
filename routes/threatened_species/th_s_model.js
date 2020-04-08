@@ -3,7 +3,8 @@ const db=require('../../data/dbconfig');
 
 module.exports = {
     classCountByCountry,
-    classCountAllCountries
+    classCountAllCountries,
+    classCountByHabitat
 };
 
 function classCountByCountry(country){
@@ -16,7 +17,7 @@ function classCountByCountry(country){
         .join('taxonomy as t', "a.scientificName", "t.scientificName")
         .join("countries as c", "a.scientificName", "c.scientificName")
     .then(countryCount => {
-        const counts = countryCount.map(item => {
+        const classObj = countryCount.map(item => {
             return {
                 className: item.className,
                 totalThreatened: item.classCount
@@ -24,10 +25,37 @@ function classCountByCountry(country){
         })
         return {
             country: country,
-            classes: counts
+            classes: classObj
         }
     })
 };
+
+
+function classCountByHabitat(code){
+    return db('assessments as a')
+        .join("taxonomy as t", "a.scientificName", "t.scientificName")
+        .join("habitats as h", "a.scientificName", "h.scientificName")
+        .select("t.className", "h.name", )
+        .count("t.className as classCount")
+        .groupBy("t.className")
+        .whereIn("a.redlistCategory",["Critically Endangered", "Endangered", "Vulnerable"])
+        .andWhere("h.code", code)
+    .then(habitatCounts => {
+        const objValues = Object.values(habitatCounts[0])
+        
+        const classObj = habitatCounts.map(item => {
+            return {
+                className: item.className,
+                totalThreatened: item.classCount
+            }
+        })
+        return {
+            habitatName: objValues[1],
+            habitatCode: code,
+            classes: classObj
+        }
+    })
+}
 
 function classCountAllCountries() {
     const crbCountries = ['Cameroon', 'Congo, The Democratic Republic of the', 'Gabon', 'Congo', 'Central African Republic', 'Equatorial Guinea'];
@@ -42,7 +70,3 @@ function classCountAllCountries() {
     });
     return allClassCountryCounts;
 };
-
-function classCountByHabitat(){
-
-}
