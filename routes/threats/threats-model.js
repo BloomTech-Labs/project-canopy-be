@@ -2,123 +2,242 @@ const knex = require('knex');
 const knexConfig = require('../../knexfile');
 const db = knex(knexConfig.development);
 
+const habitatCodes = [1.5, 1.6, 1.7, 1.8, 1.9, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 14.6];
 
+const crbArry = ['Cameroon', 'Congo, The Democratic Republic of the', 'Gabon', 'Congo', 'Central African Republic', 'Equatorial Guinea'];
 
 module.exports = {
-    find,
-    findbyEndangered,
-    findByCountry,
-    findByhabitat,
-    findByTaxonomicRank,
-    promiseCheck
+    // find,
+    // findbyEndangered,
+    // findByCountry,
+    // findByhabitat,
+    // findByTaxonomicRank,
+    // promiseCheck,
+    findThreatenedBy
 };
   
-function find() {
-    return db("threats");
+// function find() {
+//     return db("threats");
+// }
+
+// function findbyEndangered(filter) {
+//     return db("assessments")
+//         .join("countries","assessments.scientificName", "countries.scientificName" )
+//         .join("habitats","assessments.scientificName", "habitats.scientificName")
+//         .select("assessments.scientificName as Scientific Name", "assessments.redlistCategory as Redlist Category")
+//         .whereIn("assessments.redlistCategory",["Critically Endangered", "Endangered", "Vulnerable"])
+//         .andWhere(function(){
+//             this.whereIn("countries.name", crbArry)
+//                 .andWhere(function(){
+//                     this.whereIn("habitats.code", habitatCodes)
+//                 })
+//         })
+            
+// }
+
+// function findByCountry() {
+//     return db("assessments")
+//         .join("countries","assessments.scientificName", "countries.scientificName" )
+//         .join("habitats","assessments.scientificName", "habitats.scientificName")
+//         .whereIn("assessments.redlistCategory",["Critically Endangered", "Endangered", "Vulnerable"])
+//         .andWhere(function(){
+//             this.whereIn("countries.name", crbArry)
+//                 .andWhere(function(){
+//                     this.whereIn("habitats.code", habitatCodes)
+//                 })
+//         })
+//         .distinct("countries.scientificName")
+//         .select("redlistCategory", "countries.name as country")
+//         .then(data => {
+//             const countryObj = crbArry.map(item => {
+//                 return {
+//                     country: item,
+//                     species: []
+//                 }
+//             })
+//             data.map(item => {
+//                 const species = item;
+//                 countryObj.map(obj => {
+//                     if(species.country === obj.country){
+//                         obj.species.push(species)
+//                     }
+//                 })
+//             })
+//             return countryObj
+//         })
+// }
+
+// function findByTaxonomicRank(filter){
+//     return db("assessments")
+//         .join("taxonomy", "assessments.scientificName", "taxonomy.scientificName")
+//         .join("countries", "assessments.scientificName", "countries.scientificName")
+//         .whereIn("assessments.redlistCategory",["Critically Endangered", "Endangered", "Vulnerable"])
+//         .andWhere(function(){
+//             this.whereIn("countries.name", crbArry)
+//         })
+//         .select( "countries.name as Country","taxonomy.scientificName","taxonomy.className","redlistCategory")
+//         .then(data => {
+//             return dataFilterLogic(data, filter)
+//         })
+//         //     // makes an array of all class names
+//         //     const classes = data.map(item => {
+//         //         return item.className            
+//         //     });
+//         //     // filters through to create an array of distinct class names
+//         //     const uniqueClasses = classes.filter((name, i) => {
+//         //         return classes.indexOf(name) === i
+//         //     });
+//         //     // The start of formatting the data
+//         //     const classObj = uniqueClasses.map(item => {
+//         //         return {
+//         //             class: item,
+//         //             species: []
+//         //         }
+//         //     });
+//         //    data.map(item=> {
+//         //         const specie = item
+//         //         classObj.map(tax => {
+//         //             if(specie.className === tax.class){
+//         //                 tax.species.push(specie)
+//         //             }
+//         //         })
+//         //     })
+//         //     return classObj
+//         // })
+// }
+
+// function findByhabitat(filter){
+//     return db("assessments")
+//         .join("habitats","assessments.scientificName", "habitats.scientificName")
+//         .join("countries", "assessments.scientificName", "countries.scientificName")
+//         .whereIn("assessments.redlistCategory",["Critically Endangered", "Endangered", "Vulnerable"])
+//         .andWhere(function(){
+//             this.whereIn("countries.name", crbArry)
+//                 .andWhere(function(){
+//                     this.whereIn("habitats.code", habitatCodes)
+//                 })
+//         })
+//         .distinct("assessments.scientificName")
+//         .select("redlistCategory", "countries.name as country", "habitats.name as habitat", "habitats.code")
+//         .then(data => {
+//             // The start of formatting the data
+//             const habitatObj = habitatCodes.map(item => {
+//                 return {
+//                     habitatCode: item,
+//                     species: []
+//                 }
+//             });
+//            data.map(item=> {
+//                 const specie = item
+//                 habitatObj.map(tax => {
+//                     if(specie.code === `${tax.habitatCode}`){
+//                         tax.species.push(specie)
+//                     }
+//                 })
+//             })
+//             return habitatObj
+//         })
+// }
+
+
+
+
+function findThreatenedBy(filter){
+    return db("assessments as a")
+    .join("habitats as h","a.scientificName", "h.scientificName")
+    .join("countries as c", "a.scientificName", "c.scientificName")
+    .join("taxonomy as t", "a.scientificName", "t.scientificName")
+    .whereIn("a.redlistCategory",["Critically Endangered", "Endangered", "Vulnerable"])
+    .andWhere(function(){
+        this.whereIn("c.name", crbArry)
+        .andWhere(function(){
+            this.whereIn("h.code", habitatCodes)
+        })
+    })
+    // .distinct("assessments.scientificName")
+    .select("a.redlistCategory as redlistRank", 
+            "c.name as country", 
+            "h.name as habitat", 
+            "h.code", 
+            "t.speciesName",
+            "t.className"
+        )
+    .then(data => {
+       return dataFilterLogic(data, filter)
+    })
+    
 }
 
-function findbyEndangered() {
-    return db("assessments")
-        .select("scientificName", "redlistCategory")
-        .where("redlistCategory", "Critically Endangered")
-        .orWhere("redlistCategory", "Endangered")
-        .orWhere("redlistCategory", "Vulnerable")
-}
-
-function findByCountry(country) {
-    return db("assessments")
-        .join("countries","assessments.assessmentId", "countries.assessmentId" )
-        .where("redlistCategory", "Critically Endangered")
-        .orWhere("redlistCategory", "Endangered")
-        .orWhere("redlistCategory", "Vulnerable")
-        .andWhere("countries.name", country)
-        .distinct("countries.scientificName")
-        .select("redlistCategory")
-        .then(data => {
-            const countrySpecies = data.map(item => {
-                return {
-                    speciesName: item.scientificName,
-                    redlistRank: item.redlistCategory
-                }
-            })
+function dataFilterLogic(data, filter){
+    if(filter === 'countries'){
+        const countryObj = crbArry.map(item => {
             return {
-                country: country,
-                species: countrySpecies
+                country: item,
+                species: []
             }
         })
-}
-
-function findByTaxonomicRank(){
-    return db("assessments")
-        .join("taxonomy", "assessments.scientificName", "taxonomy.scientificName")
-        .join("countries", "assessments.scientificName", "countries.scientificName")
-        .whereIn("assessments.redlistCategory",["Critically Endangered", "Endangered", "Vulnerable"])
-        .andWhere(function(){
-            this.where("countries.name", 'Congo, The Democratic Republic of the')
-                .orWhere("countries.name", 'Gabon')
-                .orWhere("countries.name", 'Congo')
-                .orWhere("countries.name", 'Central African Republic')
-                .orWhere("countries.name", 'Equatorial Guinea')
-                .orWhere("countries.name", 'Cameroon')
-        })
-        .select( "countries.name as Country","taxonomy.scientificName","taxonomy.className","redlistCategory")
-        .then(data => {
-            // makes an array of all class names
-            const classes = data.map(item => {
-                return item.className            
-            });
-            // filters through to create an array of distinct class names
-            const uniqueClasses = classes.filter((name, i) => {
-                return classes.indexOf(name) === i
-            });
-            // The start of formatting the data
-            const classObj = uniqueClasses.map(item => {
-                return {
-                    class: item,
-                    species: []
-                }
-            });
-           data.map(item=> {
-                const specie = item
-                classObj.map(tax => {
-                    if(specie.className === tax.class){
-                        tax.species.push(specie)
-                    }
-                })
-            })
-            return classObj
-        })
-}
-
-function findByhabitat(habitat){
-    return db("assessments")
-        .join("habitats","assessments.scientificName", "habitats.scientificName")
-        .join("countries", "assessments.scientificName", "countries.scientificName")
-        .whereIn("assessments.redlistCategory",["Critically Endangered", "Endangered", "Vulnerable"])
-        .andWhere(function(){
-            this.where("countries.name", 'Congo, The Democratic Republic of the')
-                .andWhere("habitats.code", habitat)
-                .orWhere("countries.name", 'Gabon')
-                .orWhere("countries.name", 'Congo')
-                .orWhere("countries.name", 'Central African Republic')
-                .orWhere("countries.name", 'Equatorial Guinea')
-                .orWhere("countries.name", 'Cameroon')
-        })
-        .distinct("assessments.scientificName")
-        .select("redlistCategory")
-        .then(data => {
-            const habitatsSpecies = data.map(item => {
-                return {
-                    'Species Name': item.scientificName,
-                    'Redlist Rank': item.redlistCategory
+        data.map(item => {
+            const species = item;
+            countryObj.map(obj => {
+                if(species.country === obj.country){
+                    obj.species.push(species)
                 }
             })
+        })
+        return countryObj
+    };
+
+    if(filter === 'habitats'){
+        // The start of formatting the data
+        const habitatObj = habitatCodes.map(item => {
             return {
-                habitat: habitat,
-                species: habitatsSpecies
+                habitatCode: item,
+                species: []
             }
+        });
+       data.map(item=> {
+            const specie = item
+            habitatObj.map(tax => {
+                if(specie.code === `${tax.habitatCode}`){
+                    tax.species.push(specie)
+                }
+            })
         })
-}
+        return habitatObj
+    };
+
+    if(filter === 'taxonomy'){
+        console.log('in the filter!', data)
+        const classes = data.map(item => {
+            return item.className            
+        });
+        // filters through to create an array of distinct class names
+        const uniqueClasses = classes.filter((name, i) => {
+            return classes.indexOf(name) === i
+        });
+        // The start of formatting the data
+        const classObj = uniqueClasses.map(item => {
+            return {
+                class: item,
+                species: []
+            }
+        });
+       data.map(item=> {
+            const specie = item
+            classObj.map(tax => {
+                if(specie.className === tax.class){
+                    tax.species.push(specie)
+                }
+            })
+        })
+        return classObj;
+    }
+    
+    else {
+        return data
+    }
+};
+
 
 
 //============================ helper functions --------------
