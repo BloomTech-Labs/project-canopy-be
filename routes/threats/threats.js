@@ -23,11 +23,20 @@ router.get('/endangered', (req, res) => {
 
 
 router.get('/country', (req, res) => {
-    threats.findByCountry().then(coun => {
-        res.status(200).json(coun);
-    }).catch(err => {
-        console.log(err);
-        res.status(500).json({errorMessage:'Failed To Get Data'})
+    const crbArry = ['Cameroon', 'Congo, The Democratic Republic of the', 'Gabon', 'Congo', 'Central African Republic', 'Equatorial Guinea'];
+
+    let arry = [];
+
+    crbArry.map(country => {
+        threats.findByCountry(country)
+            .then(data => {
+                arry.push(data)
+                threats.promiseCheck(res, arry, crbArry)
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(500).json({"error": err})
+            })
     })
 });
 
@@ -42,11 +51,16 @@ router.get('/taxonomic', (req, res) => {
 
 
 router.get('/habitats', (req, res) => {
-    threats.findByhabitat().then(habi => {
-        res.status(200).json(habi);
-    }).catch(err => {
-        console.log(err);
-        res.status(500).json({errorMessage:'Failed To Get Data'})
+    const habitatCodes = [1.5, 1.6, 1.7, 1.8, 1.9, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 14.6];
+    let arry = [];
+
+    habitatCodes.map(habitat => {
+        threats.findByhabitat(habitat)
+            .then(data => {
+                arry.push(data)
+                threats.promiseCheck(res, arry, habitatCodes)
+                console.log(data)
+        })
     })
 });
 
