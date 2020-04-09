@@ -5,7 +5,7 @@ module.exports = {
   development: {
     client: 'sqlite3',
     connection: {
-      filename: './data/IUCN_data.db'
+      filename: './data/canopy_ds__test.db'
     }
   },
 
