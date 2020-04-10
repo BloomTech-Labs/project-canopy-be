@@ -2,30 +2,71 @@ const db=require('../../data/dbconfig');
 
 
 module.exports = {
-    tax,
-    UniqueClassNames,
-    classNameCount
+    classCountByCountry,
+    classCountAllCountries,
+    classCountByHabitat
 };
 
-function tax(){
+function classCountByCountry(country){
     return db('assessments as a')
-    .select("a.scientificName", "a.redlistCategory", "a.assessmentDate", "t.kingdomName", "t.phylumName","t.orderName","t.className", "t.familyName", "t.genusName", "t.speciesName")
-    .where("a.redlistCategory","Critically Endangered").orWhere("a.redlistCategory","Endangered").orWhere("a.redlistCategory","Vulnerable")
-    .join('taxonomy as t', "a.internalTaxonId", "t.internalTaxonId");
+        .select("t.className", "c.name")
+        .count('t.className as classCount')
+        .groupBy('t.className')
+        .whereIn("a.redlistCategory",["Critically Endangered", "Endangered", "Vulnerable"])
+        .andWhere('c.name', country)
+        .join('taxonomy as t', "a.scientificName", "t.scientificName")
+        .join("countries as c", "a.scientificName", "c.scientificName")
+    .then(countryCount => {
+        const classObj = countryCount.map(item => {
+            return {
+                className: item.className,
+                totalThreatened: item.classCount
+            }
+        })
+        return {
+            country: country,
+            classes: classObj
+        }
+    })
+};
+
+
+function classCountByHabitat(code){
+    return db('assessments as a')
+        .join("taxonomy as t", "a.scientificName", "t.scientificName")
+        .join("habitats as h", "a.scientificName", "h.scientificName")
+        .select("t.className", "h.name", )
+        .count("t.className as classCount")
+        .groupBy("t.className")
+        .whereIn("a.redlistCategory",["Critically Endangered", "Endangered", "Vulnerable"])
+        .andWhere("h.code", code)
+    .then(habitatCounts => {
+        const objValues = Object.values(habitatCounts[0])
+        
+        const classObj = habitatCounts.map(item => {
+            return {
+                className: item.className,
+                totalThreatened: item.classCount
+            }
+        })
+        return {
+            habitatName: objValues[1],
+            habitatCode: code,
+            classes: classObj
+        }
+    })
 }
 
-function UniqueClassNames(){
-    return db('assessments as a')
-    .distinct("t.className")
-    .where("a.redlistCategory","Critically Endangered").orWhere("a.redlistCategory","Endangered").orWhere("a.redlistCategory","Vulnerable")
-    .join('taxonomy as t', "a.internalTaxonId", "t.internalTaxonId");
-}
+function classCountAllCountries() {
+    const crbCountries = ['Cameroon', 'Congo, The Democratic Republic of the', 'Gabon', 'Congo', 'Central African Republic', 'Equatorial Guinea'];
 
+    const allClassCountryCounts = [];
 
-function classNameCount(name){
-    return db('assessments as a')
-    .select("t.className")
-    .where("a.redlistCategory","Critically Endangered").orWhere("a.redlistCategory","Endangered").orWhere("a.redlistCategory","Vulnerable")
-    .count("t.className", `${name}`)
-    .join('taxonomy as t', "a.internalTaxonId", "t.internalTaxonId");
-}
+    crbCountries.map(country => {
+        classCountByCountry(country)
+            .then(countryCount => {
+                allClassCountryCounts.push(countryCount)
+            })
+    });
+    return allClassCountryCounts;
+};
