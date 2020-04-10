@@ -4,7 +4,7 @@
   "description": "🚫 Note: All lines that start with 🚫 are instructions and should be deleted before this is posted to your portfolio. This is intended to be a guideline. Feel free to add your own flare to it.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "cross-env DB_ENV=testing jest --watch",
     "start": "node index.js",
     "server": "nodemon index.js"
   },
@@ -21,6 +21,7 @@
   "homepage": "https://github.com/Lambda-School-Labs/project-canopy-be#readme",
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "install": "^0.13.0",
     "knex": "^0.20.13",
@@ -29,5 +30,13 @@
     "pg": "^7.18.2",
     "script": "^0.1.4",
     "sqlite3": "^4.1.1"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.2",
+    "jest": "^25.3.0",
+    "supertest": "^4.0.2"
+  },
+  "jest": {
+    "testEnvironment": "node"
   }
 }
