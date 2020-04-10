@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const points_data=require('./points_data-model')
+
 router.get('/', (req,res)=>{
     points_data.find().then(assess=>{
         res.status(200).json(assess);

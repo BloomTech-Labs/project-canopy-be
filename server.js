@@ -1,4 +1,4 @@
-const cors=require('cors');
+const cors = require('cors');
 
 
 const express = require('express');
@@ -9,16 +9,19 @@ server.use(express.json());
 
 server.use(cors());
 
-const routerOne=require('./routes/routeOne')
+const routerOne = require('./routes/routeOne');
 
-const assessments=require('./routes/assessments/assessments')
+const assessments = require('./routes/assessments/assessments');
 
-const point_data=require('./routes/points_data/points_data')
+const point_data = require('./routes/points_data/points_data');
+
+const threats = require('./routes/threats/threats');
 
 const th_s=require('./routes/threatened_species/th_s_route');
 
 server.use('/one', routerOne);
 
+server.use('/api/threats', threats);
 
 server.use('/assessments', assessments);
 

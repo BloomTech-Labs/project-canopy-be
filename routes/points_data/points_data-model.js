@@ -18,6 +18,7 @@ function find() {
 function findCoordinates(){
     return db("points_data").select('longitude','latitude').limit(10);
 }
+
 function findCongoPoints(){
     return db("points_data")
         .where('longitude', '>', 8.365347)
@@ -25,3 +26,4 @@ function findCongoPoints(){
         .andWhere('latitude', '>', -4.784469)
         .andWhere('latitude', '<', 10.141932)
 }
+

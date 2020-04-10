@@ -5,10 +5,9 @@ const db = knex(knexConfig.development);
 
 
 module.exports = {
-    find,
+    all,
 };
   
-
-function find() {
-    return db("assessments");
+function all(){
+    return db("assessments")
 }
