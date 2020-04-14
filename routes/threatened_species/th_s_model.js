@@ -1,72 +1,120 @@
 const db=require('../../data/dbconfig');
 
-
 module.exports = {
     classCountByCountry,
-    classCountAllCountries,
-    classCountByHabitat
+    classCountByHabitat,
+    classCountCRB,
+    allClassCountCRB
 };
+
+const habitatCodes = [1.5, 1.6, 1.7, 1.8, 1.9, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 14.6];
+const crbArry = ['Cameroon', 'Congo, The Democratic Republic of the', 'Gabon', 'Congo', 'Central African Republic', 'Equatorial Guinea'];
 
 function classCountByCountry(country){
-    return db('assessments as a')
-        .select("t.className", "c.name")
+    return db('taxonomy as t')
+        .select("t.className")
         .count('t.className as classCount')
+        .whereIn("t.className",["MAMMALIA", "AVES", "REPTILIA", "AMPHIBIA"])
+        .andWhere(function(){
+            this.whereIn('t.scientificName', function(){
+                this.distinct('c.scientificName').from('countries as c')
+                .join('assessments as a', "c.scientificName", "a.scientificName")
+                .join("habitats as h", "c.scientificName", "h.scientificName")
+                .where('c.name', country)
+                .andWhere(function(){
+                    this.whereIn("h.code", habitatCodes)
+                    .andWhere(function(){
+                        this.whereIn("a.redlistCategory",["Critically Endangered", "Endangered", "Vulnerable"])
+                    })
+                })
+            })
+        })
         .groupBy('t.className')
-        .whereIn("a.redlistCategory",["Critically Endangered", "Endangered", "Vulnerable"])
-        .andWhere('c.name', country)
-        .join('taxonomy as t', "a.scientificName", "t.scientificName")
-        .join("countries as c", "a.scientificName", "c.scientificName")
-    .then(countryCount => {
-        const classObj = countryCount.map(item => {
+        .then(countryCount => {
+            const classObj = countryCount.map(item => {
+                return {
+                    className: item.className,
+                    totalThreatened: item.classCount
+                }
+            })
             return {
-                className: item.className,
-                totalThreatened: item.classCount
+                country: country,
+                classes: classObj
             }
         })
-        return {
-            country: country,
-            classes: classObj
-        }
-    })
 };
 
-
 function classCountByHabitat(code){
-    return db('assessments as a')
-        .join("taxonomy as t", "a.scientificName", "t.scientificName")
-        .join("habitats as h", "a.scientificName", "h.scientificName")
-        .select("t.className", "h.name", )
-        .count("t.className as classCount")
-        .groupBy("t.className")
-        .whereIn("a.redlistCategory",["Critically Endangered", "Endangered", "Vulnerable"])
-        .andWhere("h.code", code)
-    .then(habitatCounts => {
-        const objValues = Object.values(habitatCounts[0])
-        
-        const classObj = habitatCounts.map(item => {
+    return db('taxonomy as t')
+        .select("t.className")
+        .count('t.className as classCount')
+        .whereIn("t.className",["MAMMALIA", "AVES", "REPTILIA", "AMPHIBIA"])
+        .andWhere(function(){
+            this.whereIn('t.scientificName', function(){
+                this.distinct('c.scientificName').from('countries as c')
+                .join("habitats as h", "c.scientificName", "h.scientificName")
+                .join('assessments as a', "c.scientificName", "a.scientificName")
+                .whereIn('c.name', crbArry)
+                .andWhere(function(){
+                    this.where("h.code", code)
+                    .andWhere(function(){
+                        this.whereIn("a.redlistCategory",["Critically Endangered", "Endangered", "Vulnerable"])
+                    })
+                })
+            })
+        })
+        .groupBy('t.className')
+        .then(habitatCounts => {
+            const classObj = habitatCounts.map(item => {
+                return {
+                    className: item.className,
+                    totalThreatened: item.classCount
+                }
+            })
             return {
-                className: item.className,
-                totalThreatened: item.classCount
+                habitatCode: code,
+                classes: classObj
             }
         })
-        return {
-            habitatName: objValues[1],
-            habitatCode: code,
-            classes: classObj
-        }
-    })
-}
+};
 
-function classCountAllCountries() {
-    const crbCountries = ['Cameroon', 'Congo, The Democratic Republic of the', 'Gabon', 'Congo', 'Central African Republic', 'Equatorial Guinea'];
-
-    const allClassCountryCounts = [];
-
-    crbCountries.map(country => {
-        classCountByCountry(country)
-            .then(countryCount => {
-                allClassCountryCounts.push(countryCount)
+function classCountCRB(){
+    return db('taxonomy as t')
+        .select("t.className")
+        .count('t.className as classCount')
+        .whereIn("t.className",["MAMMALIA", "AVES", "REPTILIA", "AMPHIBIA"])
+        .andWhere(function(){
+            this.whereIn('t.scientificName', function(){
+                this.distinct('c.scientificName').from('countries as c')
+                .join("habitats as h", "c.scientificName", "h.scientificName")
+                .join('assessments as a', "c.scientificName", "a.scientificName")
+                .whereIn('c.name', crbArry)
+                .andWhere(function(){
+                    this.whereIn("h.code", habitatCodes)
+                    .andWhere(function(){
+                        this.whereIn("a.redlistCategory",["Critically Endangered", "Endangered", "Vulnerable"])
+                    })
+                })
             })
-    });
-    return allClassCountryCounts;
+        })
+        .groupBy('t.className')
+};
+
+function allClassCountCRB(){
+    return db('taxonomy as t')
+        .select("t.className")
+        .count('t.className as classCount')
+        .whereIn("t.className",["MAMMALIA", "AVES", "REPTILIA", "AMPHIBIA"])
+        .andWhere(function(){
+            this.whereIn('t.scientificName', function(){
+                this.distinct('c.scientificName').from('countries as c')
+                .join("habitats as h", "c.scientificName", "h.scientificName")
+                .join('assessments as a', "c.scientificName", "a.scientificName")
+                .whereIn('c.name', crbArry)
+                .andWhere(function(){
+                    this.whereIn("h.code", habitatCodes)
+                })
+            })
+        })
+        .groupBy('t.className')
 };
