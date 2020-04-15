@@ -2,10 +2,8 @@ const db=require('../../data/dbconfig');
 
 module.exports = {
     classCountByCountry,
-    classCountByCountry2,
-    classCountByCountry3,
-    classCountByCountry4,
     classCountByHabitat,
+    classCountByHabitat2,
     classCountCRB,
     allClassCountCRB,
     allClassCountByCountry
@@ -33,114 +31,35 @@ function allClassCountByCountry(){
                 })
             })
         })
-        // .then(data => {
-        //     const countObj = crbArry.map(item => {
-        //         //The setup of the returned object with item being the country name
-        //         return {
-        //             country: item,
-        //             classes: taxClass.map(className => {
-        //                 return {
-        //                     class: className,
-        //                     speciesCount: 0,
-        //                 }
-        //             })
-        //         }
-        //     });
-        //     data.map(item => {
-        //         const species = item;
-        //         countObj.map(obj => {
-        //             // sorting the species into the right country and pushing the species into the array
-        //             if(species.country === obj.country){
-        //                 obj.classes.map(className => {
-        //                     if(species.className === className.class){
-        //                         className.speciesCount++
-        //                     }
-        //                 })
-        //             }
-        //         })
-        //     });
-        //     return countObj
-        // })
-};
-function classCountByCountry4(){
-    return db('taxonomy as t')
-        .select("t.className", "c.name as country", "a.redlistCategory")
-        .join("countries as c", "t.scientificName", "c.scientificName")
-        .join('assessments as a', "t.scientificName", "a.scientificName")
-        .whereIn("t.className", taxClass)
-        .andWhere(function(){
-            this.whereIn('t.scientificName', function(){
-                this.distinct('c.scientificName').from('countries as c')
-                .join('assessments as a', "c.scientificName", "a.scientificName")
-                .join("habitats as h", "c.scientificName", "h.scientificName")
-                .whereIn('c.name', crbArry)
-                .andWhere(function(){
-                    this.whereIn("h.code", habitatCodes)
-                    .andWhere(function(){
-                        this.whereIn("a.redlistCategory", redlistRanks)
-                    })
-                })
-            })
-        })
         .then(data => {
-            const countryData = data
-            const countryObj = crbArry.map(item => {
-                //The setup of the returned object with item being the country name
+            const countObj = crbArry.map(item => {
                 return {
                     country: item,
-                    threatendClasses: taxClass.map(className => {
+                    classes: taxClass.map(className => {
                         return {
                             class: className,
-                            threatendCount: 0,
                             speciesCount: 0,
-                            threatLevels: redlistRanks.map(rank => {
-                                return { 
-                                    rank, 
-                                    count: 0
-                                }
-                            })
                         }
                     })
                 }
             });
-            allClassCountByCountry()
-                .then(allSpeciesCount => {
-                    allSpeciesCount.map(item => {
-                        const species = item;
-                        countryObj.map(obj => {
-                            if(species.country === obj.country){
-                                obj.threatendClasses.map(className => {
-                                    if(species.className === className.class){
-                                        className.speciesCount++
-                                    }
-                                })
-                            }
-                        })
-                    });
-                })
-               
-            countryData.map(item => {
+            data.map(item => {
                 const species = item;
-                countryObj.map(obj => {
-                    // sorting the species into the right country and pushing the species into the array
+                countObj.map(obj => {
                     if(species.country === obj.country){
-                        obj.threatendClasses.map(className => {
+                        obj.classes.map(className => {
                             if(species.className === className.class){
-                                className.threatendCount++
-                                className.threatLevels.map(threatRank => {
-                                    if(species.redlistCategory === threatRank.rank){
-                                        threatRank.count++
-                                    }
-                                })
+                                className.speciesCount++
                             }
                         })
                     }
                 })
             });
-            return countryObj
+            return countObj
         })
 };
-function classCountByCountry3(){
+
+function classCountByCountry(){
     return db('taxonomy as t')
         .select("t.className", "c.name as country", "a.redlistCategory")
         .join("countries as c", "t.scientificName", "c.scientificName")
@@ -162,7 +81,6 @@ function classCountByCountry3(){
         })
         .then(data => {
             const countryObj = crbArry.map(item => {
-                //The setup of the returned object with item being the country name
                 return {
                     country: item,
                     threatendClasses: taxClass.map(className => {
@@ -182,7 +100,6 @@ function classCountByCountry3(){
             data.map(item => {
                 const species = item;
                 countryObj.map(obj => {
-                    // sorting the species into the right country and pushing the species into the array
                     if(species.country === obj.country){
                         obj.threatendClasses.map(className => {
                             if(species.className === className.class){
@@ -198,88 +115,6 @@ function classCountByCountry3(){
                 })
             });
             return countryObj
-        })
-};
-function classCountByCountry2(){
-    return db('taxonomy as t')
-        .select("t.className", "c.name as country")
-        .join("countries as c", "t.scientificName", "c.scientificName")
-        // .join('assessments as a', "t.scientificName", "a.scientificName")
-        .whereIn("t.className", taxClass)
-        .andWhere(function(){
-            this.whereIn('t.scientificName', function(){
-                this.distinct('c.scientificName').from('countries as c')
-                .join('assessments as a', "c.scientificName", "a.scientificName")
-                .join("habitats as h", "c.scientificName", "h.scientificName")
-                .whereIn('c.name', crbArry)
-                .andWhere(function(){
-                    this.whereIn("h.code", habitatCodes)
-                    .andWhere(function(){
-                        this.whereIn("a.redlistCategory",["Critically Endangered", "Endangered", "Vulnerable"])
-                    })
-                })
-            })
-        })
-        .then(data => {
-            const countryObj = crbArry.map(item => {
-                //The setup of the returned object with item being the country name
-                return {
-                    country: item,
-                    threatendClasses: taxClass.map(className => {
-                        return {
-                            class: className,
-                            threatendCount: 0
-                        }
-                    })
-                }
-            });
-            data.map(item => {
-                const species = item;
-                countryObj.map(obj => {
-                    // sorting the species into the right country and pushing the species into the array
-                    if(species.country === obj.country){
-                        obj.threatendClasses.map(className => {
-                            if(species.className === className.class){
-                                className.threatendCount++
-                            }
-                        })
-                    }
-                })
-            });
-            return countryObj
-        })
-};
-function classCountByCountry(country){
-    return db('taxonomy as t')
-        .select("t.className")
-        .count('t.className as classCount')
-        .whereIn("t.className", ["MAMMALIA", "AVES", "REPTILIA", "AMPHIBIA"])
-        .andWhere(function(){
-            this.whereIn('t.scientificName', function(){
-                this.distinct('c.scientificName').from('countries as c')
-                .join('assessments as a', "c.scientificName", "a.scientificName")
-                .join("habitats as h", "c.scientificName", "h.scientificName")
-                .where('c.name', country)
-                .andWhere(function(){
-                    this.whereIn("h.code", habitatCodes)
-                    .andWhere(function(){
-                        this.whereIn("a.redlistCategory",["Critically Endangered", "Endangered", "Vulnerable"])
-                    })
-                })
-            })
-        })
-        .groupBy('t.className')
-        .then(countryCount => {
-            const classObj = countryCount.map(item => {
-                return {
-                    className: item.className,
-                    totalThreatened: item.classCount
-                }
-            })
-            return {
-                country: country,
-                classes: classObj
-            }
         })
 };
 
@@ -316,12 +151,12 @@ function classCountByHabitat(code){
             }
         })
 };
-
-function classCountCRB(){
+function classCountByHabitat2(){
     return db('taxonomy as t')
-        .select("t.className")
-        .count('t.className as classCount')
-        .whereIn("t.className",["MAMMALIA", "AVES", "REPTILIA", "AMPHIBIA"])
+        .select("t.className", "a.redlistCategory", "h.code")
+        .join("habitats as h", "t.scientificName", "h.scientificName")
+        .join('assessments as a', "t.scientificName", "a.scientificName")
+        .whereIn("t.className", taxClass)
         .andWhere(function(){
             this.whereIn('t.scientificName', function(){
                 this.distinct('c.scientificName').from('countries as c')
@@ -331,19 +166,105 @@ function classCountCRB(){
                 .andWhere(function(){
                     this.whereIn("h.code", habitatCodes)
                     .andWhere(function(){
-                        this.whereIn("a.redlistCategory", ["Critically Endangered", "Endangered", "Vulnerable"])
+                        this.whereIn("a.redlistCategory", redlistRanks)
                     })
                 })
             })
         })
-        .groupBy('t.className')
+        .then(data => {
+            const habitatObj = habitatCodes.map(item => {
+                return {
+                    habitat_code: item,
+                    threatendClasses: taxClass.map(className => {
+                        return {
+                            class: className,
+                            threatendCount: 0,
+                            threatLevels: redlistRanks.map(rank => {
+                                return { 
+                                    rank, 
+                                    count: 0
+                                }
+                            })
+                        }
+                    })
+                }
+            });
+            data.map(item => {
+                const species = item;
+                habitatObj.map(obj => {
+                    if(species.code === `${obj.habitat_code}`){
+                        obj.threatendClasses.map(className => {
+                            if(species.className === className.class){
+                                className.threatendCount++
+                                className.threatLevels.map(threatRank => {
+                                    if(species.redlistCategory === threatRank.rank){
+                                        threatRank.count++
+                                    }
+                                })
+                            }
+                        })
+                    }
+                })
+            });
+            return habitatObj
+        })
+};
+
+function classCountCRB(){
+    return db('taxonomy as t')
+        .select("t.className", "a.redlistCategory")
+        .join('assessments as a', "t.scientificName", "a.scientificName")
+        .whereIn("t.className", taxClass)
+        .andWhere(function(){
+            this.whereIn('t.scientificName', function(){
+                this.distinct('c.scientificName').from('countries as c')
+                .join('assessments as a', "c.scientificName", "a.scientificName")
+                .join("habitats as h", "c.scientificName", "h.scientificName")
+                .whereIn('c.name', crbArry)
+                .andWhere(function(){
+                    this.whereIn("h.code", habitatCodes)
+                    .andWhere(function(){
+                        this.whereIn("a.redlistCategory", redlistRanks)
+                    })
+                })
+            })
+        })
+        .then(data => {
+            const countObj = taxClass.map(className => {
+                return {
+                        class: className,
+                        threatenedCount: 0,
+                        threatLevels: redlistRanks.map(rank => {
+                            return { 
+                                rank, 
+                                count: 0
+                            }
+                        })
+                    }
+                });
+         
+            data.map(item => {
+                const species = item;
+                countObj.map(obj => {
+                    if(species.className === obj.class){
+                        obj.threatenedCount++
+                        obj.threatLevels.map(threat_lvl => {
+                            if(species.redlistCategory === threat_lvl.rank){
+                                threat_lvl.count++
+                            }
+                        })
+                    }
+                })
+            });
+            return countObj
+        })
 };
 
 function allClassCountCRB(){
     return db('taxonomy as t')
         .select("t.className")
         .count('t.className as classCount')
-        .whereIn("t.className",["MAMMALIA", "AVES", "REPTILIA", "AMPHIBIA"])
+        .whereIn("t.className", taxClass)
         .andWhere(function(){
             this.whereIn('t.scientificName', function(){
                 this.distinct('c.scientificName').from('countries as c')
