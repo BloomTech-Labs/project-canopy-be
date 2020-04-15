@@ -3,7 +3,6 @@ const db=require('../../data/dbconfig');
 module.exports = {
     classCountByCountry,
     classCountByHabitat,
-    classCountByHabitat2,
     classCountCRB,
     allClassCountCRB,
     allClassCountByCountry
@@ -118,40 +117,7 @@ function classCountByCountry(){
         })
 };
 
-function classCountByHabitat(code){
-    return db('taxonomy as t')
-        .select("t.className")
-        .count('t.className as classCount')
-        .whereIn("t.className", ["MAMMALIA", "AVES", "REPTILIA", "AMPHIBIA"])
-        .andWhere(function(){
-            this.whereIn('t.scientificName', function(){
-                this.distinct('c.scientificName').from('countries as c')
-                .join("habitats as h", "c.scientificName", "h.scientificName")
-                .join('assessments as a', "c.scientificName", "a.scientificName")
-                .whereIn('c.name', crbArry)
-                .andWhere(function(){
-                    this.where("h.code", code)
-                    .andWhere(function(){
-                        this.whereIn("a.redlistCategory", ["Critically Endangered", "Endangered", "Vulnerable"])
-                    })
-                })
-            })
-        })
-        .groupBy('t.className')
-        .then(habitatCounts => {
-            const classObj = habitatCounts.map(item => {
-                return {
-                    className: item.className,
-                    totalThreatened: item.classCount
-                }
-            })
-            return {
-                habitatCode: code,
-                classes: classObj
-            }
-        })
-};
-function classCountByHabitat2(){
+function classCountByHabitat(){
     return db('taxonomy as t')
         .select("t.className", "a.redlistCategory", "h.code")
         .join("habitats as h", "t.scientificName", "h.scientificName")
