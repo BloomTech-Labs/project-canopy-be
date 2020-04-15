@@ -27,6 +27,50 @@ router.get('/CountryClassCounts', (req, res) => {
             })
     })
 });
+router.get('/CountryClassCounts2', (req, res) => {
+
+    Th_s_model.classCountByCountry2()
+        .then(data => {
+            res.status(200).json(data)
+        })
+        .catch(err => {
+            res.status(500).json({"error": err})
+        })
+})
+router.get('/CountryClassCounts3', (req, res) => {
+
+    Th_s_model.classCountByCountry3()
+        .then(data => {
+            res.status(200).json(data)
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({"error": err})
+        })
+})
+router.get('/CountryClassCounts4', (req, res) => {
+
+    Th_s_model.classCountByCountry4()
+        .then(data => {
+            res.status(200).json(data)
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({"error": err})
+        })
+})
+router.get('/allcountryclasscount', (req, res) => {
+
+    Th_s_model.allClassCountByCountry()
+        .then(data => {
+            res.status(200).json(data)
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({"error": err})
+        })
+})
+
 
 router.get('/habitatClassCount', (req, res) => {
     // This array contains the codes associated with habitats the Project Canopy wishes to focus on
