@@ -3,7 +3,8 @@ const knexConfig = require('../../knexfile');
 const db = knex(knexConfig.development);
 
 module.exports = {
-    findThreatenedBy
+    findThreatenedBy,
+    findClassCountBy
 };
 
 // habitat codes that are specific to the areas of concern for project canopy
@@ -11,6 +12,30 @@ const habitatCodes = [1.5, 1.6, 1.7, 1.8, 1.9, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7
 // countries that are specific to the areas of concern for project canopy
 const crbArry = ['Cameroon', 'Congo, The Democratic Republic of the', 'Gabon', 'Congo', 'Central African Republic', 'Equatorial Guinea'];
 
+function findClassCountBy(filter){
+    return db('assessments as a')
+        .join("taxonomy as t", "a.scientificName", "t.scientificName")
+        .join("habitats as h", "a.scientificName", "h.scientificName")
+        .join("countries as c", "a.scientificName", "c.scientificName")
+        .count("t.className as classCount")
+        .groupBy("t.className")
+        .whereIn("a.redlistCategory",["Critically Endangered", "Endangered", "Vulnerable"])
+        .andWhere(function(){
+            // this subquery futher specifies the results by limiting to the countries Project Canopy is concerned with
+            this.whereIn("c.name", crbArry)
+            // this subquery futher specifies the results by limiting to the habitats Project Canopy is concerned with (by the habitat code)
+            .andWhere(function(){
+                this.whereIn("h.code", habitatCodes)
+            })
+        })
+        .select(
+                "c.name as country", 
+                "t.className",
+            )
+        .then(counts => {
+           
+        })
+}
  
 function findThreatenedBy(filter){
     return db("assessments as a")
