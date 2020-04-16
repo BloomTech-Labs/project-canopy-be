@@ -15,7 +15,7 @@ module.exports = {
 function threatenedSpeciesByClass(filter){
     return db('assessments as a')
         .join('taxonomy as t', 'a.scientificName', 't.scientificName')
-        .select('t.className','t.scientificName', 'a.redlistCategory')
+        .select('t.className as class','t.scientificName', 'a.redlistCategory')
         .whereIn('a.redlistCategory', redlistRanks)
         .andWhere(function(){
             this.whereIn('t.className', taxClass)
@@ -30,25 +30,8 @@ function threatenedSpeciesByClass(filter){
                 })
             })
         })
-        // .then(data => {
-        //     console.log('from class model')
-        //     return dataFormatHelper(data, filter)
-        // })
         .then(data => {
-            const classObj = taxClass.map(tax => {
-                return {
-                    class: tax,
-                    threatenedSpecies: []
-                }
-            })
-            data.map(species => {
-                classObj.map(tax => {
-                    if(species.className === tax.class){
-                        tax.threatenedSpecies.push(species)
-                    }
-                })
-            })
-            return classObj
+            return dataFormatHelper(data, filter)
         })
 };
 
@@ -72,25 +55,8 @@ function threatenedSpeciesByCountry(filter){
                 })
             })
         })
-        // .then(data => {
-        //     console.log('from country model')
-        //     return dataFormatHelper(data, filter)
-        // })
         .then(data => {
-            const countryObj = crbArry.map(country => {
-                return {
-                    country,
-                    species: []
-                }
-            })
-            data.map(species => {
-                countryObj.map(country => {
-                    if(species.country === country.country){
-                        country.species.push(species)
-                    }
-                })
-            })
-            return countryObj
+            return dataFormatHelper(data, filter)
         })
 };
 
@@ -98,7 +64,7 @@ function threatenedSpeciesByHabitat(filter){
     return db('assessments as a')
         .join('taxonomy as t', 'a.scientificName', 't.scientificName')
         .join('habitats as h', 't.scientificName', 'h.scientificName')
-        .select('t.scientificName', 'a.redlistCategory', 'h.code', 'h.name as habitat_name')
+        .select('t.scientificName', 'a.redlistCategory', 'h.code as habitat', 'h.name as habitat_name')
         .whereIn("h.code", habitatCodes)
         .andWhere(function(){
             this.whereIn("a.redlistCategory", redlistRanks)
@@ -112,52 +78,30 @@ function threatenedSpeciesByHabitat(filter){
                 })
             })
         })
-        // .then(data => {
-        //     console.log('from habitat model')
-        //     return dataFormatHelper(data, filter)
-        // })
         .then(data => {
-            const habitatObj = habitatCodes.map(habitat => {
-                return {
-                    habitat,
-                    species: []
-                }
-            });
-
-            data.map(species => {
-                habitatObj.map(habitat => {
-                    if(species.code === `${habitat.habitat}`){
-                        habitat.species.push(species)
-                    }
-                })
-            })
-            return habitatObj
+            return dataFormatHelper(data, filter)
         })
 }
 
-// function dataFormatHelper(data, filter){
-//     const filterVar = filter;
-//     const filterObj = {
-//         class: taxClass,
-//         habitat: habitatCodes,
-//         country: crbArry
-//     }
-
-//     const objArry = filterObj[filterVar].map(item => {
-//         return {
-//             [filterVar]: item,
-//             species: []
-//         }
-//     })
-//     console.log(filterVar)
-//     data.map(item => {
-//         // console.log('item',item)
-//         objArry.map(thing => {
-//             // console.log('thing',thing)
-//             if(`${item[filterVar]}` === `${thing[filterVar]}`){
-//                 thing.species.push(item)
-//             }
-//         })
-//     })
-//     return objArry
-// };
+function dataFormatHelper(data, filter){
+    const filterVar = filter;
+    const filterObj = {
+        class: taxClass,
+        habitat: habitatCodes,
+        country: crbArry
+    };
+    const objArry = filterObj[filterVar].map(item => {
+        return {
+            [filterVar]: item,
+            species: []
+        }
+    });
+    data.map(item => {
+        objArry.map(thing => {
+            if(`${item[filterVar]}` === `${thing[filterVar]}`){
+                thing.species.push(item)
+            }
+        })
+    });
+    return objArry
+};
