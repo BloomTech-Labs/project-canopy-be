@@ -81,7 +81,7 @@ function threatenedSpeciesByHabitat(filter){
         .then(data => {
             return dataFormatHelper(data, filter)
         })
-}
+};
 
 function dataFormatHelper(data, filter){
     const filterVar = filter;

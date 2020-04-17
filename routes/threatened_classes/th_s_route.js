@@ -2,6 +2,16 @@ const express = require('express');
 const router = express.Router();
 const Th_s_model = require("./th_s_model");
 
+router.get('/allClassCountByHabitat', (req, res) => {
+    Th_s_model.allClassCountByHabitat()
+        .then(data => {
+            res.status(200).json(data)
+        })
+        .catch(err => {
+            res.status(500).json({"error": err})
+        })
+});
+
 router.get('/CountryClassCounts', (req, res) => {
     Th_s_model.classCountByCountry()
         .then(data => {
