@@ -11,7 +11,50 @@ module.exports = {
     classCountByHabitat,
     classCountCRB,
     allClassCountCRB,
-    allClassCountByCountry
+    allClassCountByCountry,
+    allClassCountByHabitat
+};
+
+function allClassCountByHabitat(){
+    return db('assessments as a')
+        .join('taxonomy as t', 'a.scientificName', 't.scientificName')
+        .join('habitats as h', 't.scientificName', 'h.scientificName')
+        .select('t.className', 'h.name as habitat_name', 'h.code as habitat')
+        .whereIn("h.code", habitatCodes)
+        .andWhere(function(){
+            this.whereIn('t.className', taxClass)
+            .andWhere(function(){
+                this.whereIn('a.scientificName', function(){
+                    this.distinct('c.scientificName').from('countries as c')
+                    .whereIn('c.name', crbArry)
+                })
+            })
+        })
+        .then(data => {
+            const dataObj = habitatCodes.map(item => {
+                return {
+                    habitat: item,
+                    classes: taxClass.map(className => {
+                        return {
+                            class: className,
+                            speciesCount: 0,
+                        }
+                    })
+                }
+            });
+            data.map(item => {
+                dataObj.map(obj => {
+                    if(item.habitat === `${obj.habitat}`){
+                        obj.classes.map(className => {
+                            if(item.className === className.class){
+                                className.speciesCount++
+                            }
+                        })
+                    }
+                })
+            })
+            return dataObj;
+        })
 };
 
 function allClassCountByCountry(){
