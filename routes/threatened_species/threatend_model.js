@@ -15,7 +15,7 @@ module.exports = {
 function threatenedSpeciesByClass(filter){
     return db('assessments as a')
         .join('taxonomy as t', 'a.scientificName', 't.scientificName')
-        .select('t.className as class','t.scientificName', 'a.redlistCategory')
+        .select('t.className as class','t.scientificName', 't.speciesName', 'a.redlistCategory')
         .whereIn('a.redlistCategory', redlistRanks)
         .andWhere(function(){
             this.whereIn('t.className', taxClass)
@@ -39,7 +39,7 @@ function threatenedSpeciesByCountry(filter){
     return db('assessments as a')
         .join('taxonomy as t', 'a.scientificName', 't.scientificName')
         .join('countries as c', 't.scientificName', 'c.scientificName')
-        .select('t.scientificName', 'a.redlistCategory', 't.className', 'c.name as country')
+        .select('t.scientificName', 't.speciesName', 'a.redlistCategory', 't.className', 'c.name as country')
         .whereIn('a.redlistCategory', redlistRanks)
         .andWhere(function(){
             this.whereIn('c.name', crbArry)
