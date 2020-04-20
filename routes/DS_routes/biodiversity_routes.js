@@ -3,7 +3,7 @@ const router = express.Router();
 const axios = require('axios');
 
 router.get('/', (req, res) => {
-    axios.get('http://54.244.146.8/hotspot-habitats/')
+    axios.get('http://52.35.82.66/hotspot-habitats/')
         .then(resp => {
             res.status(200).json(resp.data)
         })
@@ -13,7 +13,7 @@ router.get('/', (req, res) => {
 });
 router.get('/:country', (req, res) => {
     const { country } = req.params
-    axios.get(`http://54.244.146.8/hotspot-habitats/${country}`)
+    axios.get(`http://52.35.82.66/hotspot-habitats/${country}`)
         .then(resp => {
             res.status(200).json(resp.data)
         })
@@ -22,4 +22,4 @@ router.get('/:country', (req, res) => {
         })
 });
 
-module.exports = router
+module.exports = router;
