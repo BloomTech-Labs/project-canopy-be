@@ -42,7 +42,7 @@ function threatenedSpeciesByCountry(filter){
     return db('assessments as a')
         .join('taxonomy as t', 'a.scientificName', 't.scientificName')
         .join('countries as c', 't.scientificName', 'c.scientificName')
-        .select('t.scientificName', 't.speciesName', 'a.redlistCategory', 't.className', 'c.name as country')
+        .select('t.scientificName', 't.speciesName', 'a.redlistCategory', 't.className', 'c.name as country', 't.kingdomName', 't.phylumName')
         .whereIn('a.redlistCategory', redlistRanks)
         .andWhere(function(){
             this.whereIn('c.name', crbArry)
