@@ -9,7 +9,9 @@ const {
 module.exports = {
     threatenedSpeciesByClass,
     threatenedSpeciesByCountry,
-    threatenedSpeciesByHabitat
+    threatenedSpeciesByHabitat,
+    allSpeciesByCountry,
+    allSpeciesByHabitat
 };
 
 function threatenedSpeciesByClass(filter){
@@ -60,6 +62,28 @@ function threatenedSpeciesByCountry(filter){
         })
 };
 
+function allSpeciesByCountry(filter){
+    return db('assessments as a')
+        .join('taxonomy as t', 'a.scientificName', 't.scientificName')
+        .join('countries as c', 't.scientificName', 'c.scientificName')
+        .select('t.scientificName', 't.speciesName', 'a.redlistCategory', 't.className', 'c.name as country')
+        .whereIn('c.name', crbArry)
+        .andWhere(function(){
+            this.whereIn("t.className", taxClass)
+            .andWhere(function(){
+                this.whereIn('t.scientificName', function(){
+                    this.distinct("h.scientificName").from("habitats as h")
+                    .andWhere(function(){
+                        this.whereIn("h.code", habitatCodes)
+                    })
+                })
+            })
+        })
+        .then(data => {
+            return dataFormatHelper(data, filter)
+        })
+};
+
 function threatenedSpeciesByHabitat(filter){
     return db('assessments as a')
         .join('taxonomy as t', 'a.scientificName', 't.scientificName')
@@ -82,6 +106,26 @@ function threatenedSpeciesByHabitat(filter){
             return dataFormatHelper(data, filter)
         })
 };
+
+function allSpeciesByHabitat(filter){
+    return db('assessments as a')
+        .join('taxonomy as t', 'a.scientificName', 't.scientificName')
+        .join('habitats as h', 't.scientificName', 'h.scientificName')
+        .select('t.scientificName', 'a.redlistCategory', 'h.code as habitat', 'h.name as habitat_name')
+        .whereIn("h.code", habitatCodes)
+        .andWhere(function(){
+            this.whereIn("t.className", taxClass)
+            .andWhere(function(){
+                this.whereIn('a.scientificName', function(){
+                    this.distinct('c.scientificName').from('countries as c')
+                    .whereIn('c.name', crbArry)
+                })
+            })
+        })
+        .then(data => {
+            return dataFormatHelper(data, filter)
+        })
+}
 
 function dataFormatHelper(data, filter){
     const filterVar = filter;
