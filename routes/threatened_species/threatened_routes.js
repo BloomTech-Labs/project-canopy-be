@@ -11,7 +11,7 @@ router.get('/by/:filter', (req, res) => {
             res.status(200).json(data)
         })
         .catch(err => {
-            res.status(500).json(err)
+            res.status(500).json({Error: err})
         })
 })
 
@@ -21,9 +21,17 @@ function routeFilter(filter){
     if(filter.toLowerCase() === 'country'){
        return threats.threatenedSpeciesByCountry(filter)  
     }
+    if(filter.toLowerCase() === 'country-all'){
+        const filterSplit = filter.split('-')
+        return threats.allSpeciesByCountry(filterSplit[0])  
+     }
     if(filter.toLowerCase() === 'habitat'){
        return threats.threatenedSpeciesByHabitat(filter)
     }
+    if(filter.toLowerCase() === 'habitat-all'){
+        const filterSplit = filter.split('-')
+        return threats.allSpeciesByHabitat(filterSplit[0])
+     }
     if(filter.toLowerCase() === 'class'){
        return threats.threatenedSpeciesByClass(filter)
     }
