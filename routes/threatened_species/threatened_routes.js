@@ -35,5 +35,8 @@ function routeFilter(filter){
     if(filter.toLowerCase() === 'class'){
        return threats.threatenedSpeciesByClass(filter)
     }
+    if(filter.toLowerCase() === 'all'){
+        return threats.getAllSpecies()
+     }
 }
 

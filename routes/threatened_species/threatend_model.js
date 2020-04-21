@@ -11,7 +11,8 @@ module.exports = {
     threatenedSpeciesByCountry,
     threatenedSpeciesByHabitat,
     allSpeciesByCountry,
-    allSpeciesByHabitat
+    allSpeciesByHabitat,
+    getAllSpecies
 };
 
 function threatenedSpeciesByClass(filter){
@@ -125,7 +126,24 @@ function allSpeciesByHabitat(filter){
         .then(data => {
             return dataFormatHelper(data, filter)
         })
-}
+};
+
+function getAllSpecies(){
+    return db('taxonomy as t')
+        .join('assessments as a', 't.scientificName', 'a.scientificName')
+        .select('t.className', 't.speciesName', 'a.redlistCategory')
+        .whereIn("t.className", taxClass)
+        .andWhere(function(){
+            this.whereIn('t.scientificName', function(){
+                this.distinct('c.scientificName').from('countries as c')
+                    .join("habitats as h", "c.scientificName", "h.scientificName")
+                    .whereIn('c.name', crbArry)
+                    .andWhere(function(){
+                        this.whereIn("h.code", habitatCodes)
+                    })
+            })
+        })
+};
 
 function dataFormatHelper(data, filter){
     const filterVar = filter;
