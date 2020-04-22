@@ -14,7 +14,7 @@ module.exports = {
 
 function countriesClasses(){
     return db('taxonomy as t')
-        .select("t.className", "c.name as country", "a.redlistCategory",'t.scientificName', 't.speciesName', 'c.name as country', 't.kingdomName', 't.phylumName')
+        .select("t.className", "c.name as country", "a.redlistCategory",'t.scientificName', 't.speciesName', 't.kingdomName', 't.phylumName')
         .join("countries as c", "t.scientificName", "c.scientificName")
         .join('assessments as a', "t.scientificName", "a.scientificName")
         .whereIn('c.name', crbArry)
@@ -76,7 +76,7 @@ function countriesClasses(){
 
 function habitatsClasses(){
     return db('taxonomy as t')
-        .select('t.className', 'h.code as habitat', 'h.name as habitat_name', 'a.redlistCategory','t.scientificName', 't.speciesName', 't.kingdomName', 't.phylumName')
+        .select('t.className', 'h.code as habitat', 'h.name as habitat_name', 'a.redlistCategory', 't.scientificName', 't.speciesName', 't.kingdomName', 't.phylumName')
         .join('habitats as h', 't.scientificName', 'h.scientificName')
         .join('assessments as a', 't.scientificName', 'a.scientificName')
         .whereIn('h.code', habitatCodes)
@@ -152,25 +152,27 @@ function allCountsByClass(){
             })
         })
         .then(data => {
-            const allCountObj = taxClass.map(className => {
-                return {
-                    class: className,
-                    speciesCount: 0,
-                    threatenedCount: 0,
-                    threatLevels: redlistRanks.map(rank => {
-                        return { 
-                            rank, 
-                            count: 0
-                        }
-                    }),
-                    species: [],
-                    threatenedSpecies: []
-                }
-            })
+            const allCountObj = {
+                classes: taxClass.map(className => {
+                    return {
+                        class: className,
+                        speciesCount: 0,
+                        threatenedCount: 0,
+                        threatLevels: redlistRanks.map(rank => {
+                            return { 
+                                rank, 
+                                count: 0
+                            }
+                        }),
+                        species: [],
+                        threatenedSpecies: []
+                    }
+                })
+            }
 
             data.map(item => {
                 const species = item;
-                allCountObj.map(obj => {
+                allCountObj.classes.map(obj => {
                     if(species.className === obj.class){
                         obj.species.push(species)
                         obj.speciesCount++
