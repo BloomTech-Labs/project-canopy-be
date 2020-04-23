@@ -115,33 +115,15 @@ To get the server running locally:
     }
 ```
 
-## 2️⃣ Actions
+## Actions
 
-🚫 This is an example, replace this with the actions that pertain to your backend
+`countriesClasses(filter)` -> Returns countries by class
 
-`getOrgs()` -> Returns all organizations
+`habitatsClasses(filter)` -> Returns habitats by class
 
-`getOrg(orgId)` -> Returns a single organization by ID
+`allCountsByClass()` -> Returns all the counts by class
 
-`addOrg(org)` -> Returns the created org
-
-`updateOrg(orgId)` -> Update an organization by ID
-
-`deleteOrg(orgId)` -> Delete an organization by ID
-<br>
-<br>
-<br>
-`getUsers(orgId)` -> if no param all users
-
-`getUser(userId)` -> Returns a single user by user ID
-
-`addUser(user object)` --> Creates a new user and returns that user. Also creates 7 availabilities defaulted to hours of operation for their organization.
-
-`updateUser(userId, changes object)` -> Updates a single user by ID.
-
-`deleteUser(userId)` -> deletes everything dependent on the user
-
-## 3️⃣ Environment Variables
+## Environment Variables
 
 In order for the app to function correctly, the user must set up their own environment variables.
 
