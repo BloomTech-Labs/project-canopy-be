@@ -3,7 +3,7 @@
 
 # API Documentation
 
-- API documentation can be found here https://documenter.getpostman.com/view/10583912/Szf27XLo?version=latest
+- API documentation can be found here (https://documenter.getpostman.com/view/10583912/Szf27XLo?version=latest)
 
 #### Backend deployed at [Heroku](https://projectcanopybackend.herokuapp.com) <br>
 
@@ -56,39 +56,63 @@ To get the server running locally:
 
 # Data Model
 
-#### 2️⃣ ORGANIZATIONS
+#### DATA
+
+---
+
+```
+ "country": "Cameroon",
+        "classes": [
+            {
+                "class": "AMPHIBIA",
+                "speciesCount": 211,
+                "threatenedCount": 56,
+                "threatLevels": [
+                    {
+                        "rank": "Critically Endangered",
+                        "count": 18
+                    },
+                    {
+                        "rank": "Endangered",
+                        "count": 25
+                    },
+                    {
+                        "rank": "Vulnerable",
+                        "count": 13
+                    }
+                ],
+                "species": [
+                    {
+                        "className": "AMPHIBIA",
+                        "country": "Cameroon",
+                        "redlistCategory": "Endangered",
+                        "scientificName": "Arthroleptis perreti",
+                        "speciesName": "perreti",
+                        "kingdomName": "ANIMALIA",
+                        "phylumName": "CHORDATA"
+                    }
+```
+
+#### BIODIVERSITY DATA
+
+---
+
+```
+ {
+        "habitat": "Forest - Subtropical / Tropical Moist Lowland",
+        "count": 531
+    }
+```
+
+#### THREATS DATA
 
 ---
 
 ```
 {
-  id: UUID
-  name: STRING
-  industry: STRING
-  paid: BOOLEAN
-  customer_id: STRING
-  subscription_id: STRING
-}
-```
-
-#### USERS
-
----
-
-```
-{
-  id: UUID
-  organization_id: UUID foreign key in ORGANIZATIONS table
-  first_name: STRING
-  last_name: STRING
-  role: STRING [ 'owner', 'supervisor', 'employee' ]
-  email: STRING
-  phone: STRING
-  cal_visit: BOOLEAN
-  emp_visit: BOOLEAN
-  emailpref: BOOLEAN
-  phonepref: BOOLEAN
-}
+        "name": "Small-holder farming",
+        "count": 754
+    }
 ```
 
 ## 2️⃣ Actions
