@@ -14,7 +14,7 @@ module.exports = {
 
 function countriesClasses(filter){
     return db('taxonomy as t')
-        .select("t.className", "c.name as country", "a.redlistCategory",'t.scientificName', 't.speciesName', 't.kingdomName', 't.phylumName')
+        .select("t.className", "c.name as country", "a.redlistCategory",'t.scientificName', 't.speciesName', 't.kingdomName', 't.phylumName', 'a.populationTrend')
         .join("countries as c", "t.scientificName", "c.scientificName")
         .join('assessments as a', "t.scientificName", "a.scientificName")
         .whereIn('c.name', crbArry)
@@ -34,7 +34,7 @@ function countriesClasses(filter){
 
 function habitatsClasses(filter){
     return db('taxonomy as t')
-        .select('t.className', 'h.code as habitat', 'h.name as habitat_name', 'a.redlistCategory', 't.scientificName', 't.speciesName', 't.kingdomName')
+        .select('t.className', 'h.code as habitat', 'h.name as habitat_name', 'a.redlistCategory', 't.scientificName', 't.speciesName', 't.kingdomName', 'a.populationTrend')
         .join('habitats as h', 't.scientificName', 'h.scientificName')
         .join('assessments as a', 't.scientificName', 'a.scientificName')
         .whereIn('h.code', habitatCodes)
@@ -55,7 +55,7 @@ function habitatsClasses(filter){
 function allCountsByClass(){
     return db('taxonomy as t')
         .join('assessments as a', "t.scientificName", "a.scientificName")
-        .select("t.className", "a.redlistCategory",'t.scientificName', 't.speciesName', 't.kingdomName', 't.phylumName')
+        .select("t.className", "a.redlistCategory",'t.scientificName', 't.speciesName', 't.kingdomName', 't.phylumName', 'a.populationTrend')
         .whereIn("t.className", taxClass)
         .andWhere(function(){
             this.whereIn('t.scientificName', function(){
@@ -109,13 +109,13 @@ function allCountsByClass(){
 
 // WORK IN PROGRESS
 
-const filterObj = {
-    class: taxClass,
-    habitat: habitatCodes,
-    country: crbArry
-};
 
 function dataFormatHelper(data, filter){
+    const filterObj = {
+        all: taxClass,
+        habitat: habitatCodes,
+        country: crbArry
+    };
     const objArry = filterObj[filter].map(item => {
         return {
             [filter]: item,
