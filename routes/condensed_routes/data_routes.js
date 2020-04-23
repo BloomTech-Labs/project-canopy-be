@@ -5,13 +5,13 @@ const ClassModel = require('./classModel.js');
 router.get('/by/:filter', (req, res) => {
     const { filter } = req.params;
     routeFilter(filter)
-        .then(data => {
-            res.status(200).json(data)
-        })
-        .catch(err => {
-            console.log(err)
-            res.status(500).json({Error: err})
-        })
+    .then(data => {
+        res.status(200).json(data)
+    })
+    .catch(err => {
+        console.log(err)
+        res.status(500).json({Error: err})
+    })
 });
 
 module.exports = router;

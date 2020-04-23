@@ -9,12 +9,12 @@ const {
 module.exports = {
     countriesClasses,
     habitatsClasses,
-    allCountsByClass
+    allCountsByClass,
 }
 
 function countriesClasses(filter){
     return db('taxonomy as t')
-        .select("t.className", "c.name as country", "a.redlistCategory",'t.scientificName', 't.speciesName', 't.kingdomName', 't.phylumName')
+        .select("t.className", "c.name as country", "a.redlistCategory",'t.scientificName', 't.speciesName', 't.kingdomName', 't.phylumName', 'a.populationTrend')
         .join("countries as c", "t.scientificName", "c.scientificName")
         .join('assessments as a', "t.scientificName", "a.scientificName")
         .whereIn('c.name', crbArry)
@@ -28,13 +28,23 @@ function countriesClasses(filter){
             })
         })
         .then(data => {
-           return dataFormatHelper(data, filter);
+            return findCommonName()
+            .then(com => {
+                data.map(animal => {
+                    com.map(name => {
+                        if(animal.scientificName === name.scientificName){
+                            animal.commonName = name.commonName
+                        }
+                    })
+                })
+                return dataFormatHelper(data, filter);
+            })
         })
 };
 
 function habitatsClasses(filter){
     return db('taxonomy as t')
-        .select('t.className', 'h.code as habitat', 'h.name as habitat_name', 'a.redlistCategory', 't.scientificName', 't.speciesName', 't.kingdomName')
+        .select('t.className', 'h.code as habitat', 'h.name as habitat_name', 'a.redlistCategory', 't.scientificName', 't.speciesName', 't.kingdomName', 'a.populationTrend')
         .join('habitats as h', 't.scientificName', 'h.scientificName')
         .join('assessments as a', 't.scientificName', 'a.scientificName')
         .whereIn('h.code', habitatCodes)
@@ -48,14 +58,24 @@ function habitatsClasses(filter){
             })
         })
         .then(data => {
-            return dataFormatHelper(data, filter);
+            return findCommonName()
+            .then(com => {
+                data.map(animal => {
+                    com.map(name => {
+                        if(animal.scientificName === name.scientificName){
+                            animal.commonName = name.commonName
+                        }
+                    })
+                })
+                return dataFormatHelper(data, filter);
+            })
         })
 };
 
 function allCountsByClass(){
     return db('taxonomy as t')
         .join('assessments as a', "t.scientificName", "a.scientificName")
-        .select("t.className", "a.redlistCategory",'t.scientificName', 't.speciesName', 't.kingdomName', 't.phylumName')
+        .select("t.className", "a.redlistCategory",'t.scientificName', 't.speciesName', 't.kingdomName', 't.phylumName', 'a.populationTrend')
         .whereIn("t.className", taxClass)
         .andWhere(function(){
             this.whereIn('t.scientificName', function(){
@@ -85,37 +105,50 @@ function allCountsByClass(){
                     }
                 })
             }
-
-            data.map(item => {
-                const species = item;
-                allCountObj.classes.map(obj => {
-                    if(species.className === obj.class){
-                        obj.species.push(species)
-                        obj.speciesCount++
-                        obj.threatLevels.map(threatRank => {
-                            if(species.redlistCategory === threatRank.rank){
-                                obj.threatenedSpecies.push(species)
-                                obj.threatenedCount++
-                                threatRank.count++
-                                }
-                            })
-                    }
+            return findCommonName()
+            .then(com => {
+                data.map(animal => {
+                    com.map(name => {
+                        if(animal.scientificName === name.scientificName){
+                            animal.commonName = name.commonName
+                        }
+                    })
                 })
-            });
-            return allCountObj
-
+                data.map(item => {
+                    const species = item;
+                    allCountObj.classes.map(obj => {
+                        if(species.className === obj.class){
+                            obj.species.push(species)
+                            obj.speciesCount++
+                            obj.threatLevels.map(threatRank => {
+                                if(species.redlistCategory === threatRank.rank){
+                                    obj.threatenedSpecies.push(species)
+                                    obj.threatenedCount++
+                                    threatRank.count++
+                                    }
+                                })
+                        }
+                    })
+                });
+                return allCountObj
+            })
         })
 };
 
-// WORK IN PROGRESS
+function findCommonName(){
+    return db('CommonNames')
+        .select('scientificName', 'name as commonName')
+        .where('main', '=', '1')
+}
 
-const filterObj = {
-    class: taxClass,
-    habitat: habitatCodes,
-    country: crbArry
-};
 
+// helper to dynamically format the returned data
 function dataFormatHelper(data, filter){
+    const filterObj = {
+        all: taxClass,
+        habitat: habitatCodes,
+        country: crbArry
+    };
     const objArry = filterObj[filter].map(item => {
         return {
             [filter]: item,
