@@ -10,7 +10,6 @@ module.exports = {
     countriesClasses,
     habitatsClasses,
     allCountsByClass,
-    findCommonName
 }
 
 function countriesClasses(filter){
