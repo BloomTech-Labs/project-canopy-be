@@ -56,8 +56,6 @@ To get the server running locally:
 
 # Data Model
 
-🚫This is just an example. Replace this with your data model
-
 #### 2️⃣ ORGANIZATIONS
 
 ---
@@ -125,13 +123,7 @@ In order for the app to function correctly, the user must set up their own envir
 
 create a .env file that includes the following:
 
-🚫 These are just examples, replace them with the specifics for your app
-
-_ STAGING_DB - optional development db for using functionality not available in SQLite
-_ NODE\*ENV - set to "development" until ready for "production"
-
-- JWT*SECRET - you can generate this by using a python shell and running import random''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789!@#\$%^&amp;*(-_=+)') for i in range(50)])
-  _ SENDGRID_API_KEY - this is generated in your Sendgrid account \* stripe_secret - this is generated in the Stripe dashboard
+\_ DB_ENV - set to "development" until ready for "production"
 
 ## Contributing
 
@@ -172,5 +164,5 @@ These contribution guidelines have been adapted from [this good-Contributing.md-
 
 ## Documentation
 
-See [Frontend Documentation](🚫link to your frontend readme here) for details on the fronend of our project.
-🚫 Add DS iOS and/or Andriod links here if applicable.
+See [Frontend Documentation](https://github.com/Lambda-School-Labs/project-canopy-fe).
+See [DS Documentation](https://github.com/Lambda-School-Labs/project-canopy-ds)
