@@ -37,6 +37,10 @@ To get the server running locally:
 | ------ | ------------- | ------------------------------------ |
 | GET    | `/by/:filter` | Filters by country, habitat, or all. |
 
+| Method | Endpoint | Description                       |
+| ------ | -------- | --------------------------------- |
+| POST   | `/`      | Returns Species Card Information. |
+
 ### DS Routes
 
 #### Biodiversity Routes
@@ -122,6 +126,8 @@ To get the server running locally:
 `habitatsClasses(filter)` -> Returns habitats by class
 
 `allCountsByClass()` -> Returns all the counts by class
+
+`speciesCardInformation(scientificName)` -> Returns species card information
 
 ## Environment Variables
 
