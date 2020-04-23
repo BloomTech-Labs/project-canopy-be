@@ -5,6 +5,17 @@ const ClassModel = require('./classModel.js');
 router.get('/by/:filter', (req, res) => {
     const { filter } = req.params;
     routeFilter(filter)
+    .then(data => {
+        res.status(200).json(data)
+    })
+    .catch(err => {
+        console.log(err)
+        res.status(500).json({Error: err})
+    })
+});
+
+router.get('/by/test/test', (req, res) => {
+    ClassModel.findCommonName()
         .then(data => {
             res.status(200).json(data)
         })
@@ -13,7 +24,6 @@ router.get('/by/:filter', (req, res) => {
             res.status(500).json({Error: err})
         })
 });
-
 module.exports = router;
 
 
