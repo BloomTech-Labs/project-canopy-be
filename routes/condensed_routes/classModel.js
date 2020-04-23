@@ -12,7 +12,7 @@ module.exports = {
     allCountsByClass
 }
 
-function countriesClasses(){
+function countriesClasses(filter){
     return db('taxonomy as t')
         .select("t.className", "c.name as country", "a.redlistCategory",'t.scientificName', 't.speciesName', 't.kingdomName', 't.phylumName')
         .join("countries as c", "t.scientificName", "c.scientificName")
@@ -28,55 +28,13 @@ function countriesClasses(){
             })
         })
         .then(data => {
-            // this builds out the schema for the format of the returned data
-            const countObj = crbArry.map(item => {
-                return {
-                    country: item,
-                    classes: taxClass.map(className => {
-                        return {
-                            class: className,
-                            speciesCount: 0,
-                            threatenedCount: 0,
-                            threatLevels: redlistRanks.map(rank => {
-                                return { 
-                                    rank, 
-                                    count: 0
-                                }
-                            }),
-                            species: [],
-                            threatenedSpecies: []
-                        }
-                    })
-                }
-            });
-            // this is mapping the data returned from the DB call and molding it to fit the schema
-            data.map(item => {
-                const species = item;
-                countObj.map(obj => {
-                    if(species.country === obj.country){
-                        obj.classes.map(className => {
-                            if(species.className === className.class){
-                                className.species.push(species)
-                                className.speciesCount++
-                                className.threatLevels.map(threatRank => {
-                                    if(species.redlistCategory === threatRank.rank){
-                                        className.threatenedSpecies.push(species)
-                                        className.threatenedCount++
-                                        threatRank.count++
-                                        }
-                                    })
-                            }
-                        })
-                    }
-                })
-            });
-            return countObj
+           return dataFormatHelper(data, filter);
         })
 };
 
-function habitatsClasses(){
+function habitatsClasses(filter){
     return db('taxonomy as t')
-        .select('t.className', 'h.code as habitat', 'h.name as habitat_name', 'a.redlistCategory', 't.scientificName', 't.speciesName', 't.kingdomName', 't.phylumName')
+        .select('t.className', 'h.code as habitat', 'h.name as habitat_name', 'a.redlistCategory', 't.scientificName', 't.speciesName', 't.kingdomName')
         .join('habitats as h', 't.scientificName', 'h.scientificName')
         .join('assessments as a', 't.scientificName', 'a.scientificName')
         .whereIn('h.code', habitatCodes)
@@ -90,49 +48,7 @@ function habitatsClasses(){
             })
         })
         .then(data => {
-            // this builds out the schema for the format of the returned data
-            const countObj = habitatCodes.map(item => {
-                return {
-                    habitat: item,
-                    classes: taxClass.map(className => {
-                        return {
-                            class: className,
-                            speciesCount: 0,
-                            threatenedCount: 0,
-                            threatLevels: redlistRanks.map(rank => {
-                                return { 
-                                    rank, 
-                                    count: 0
-                                }
-                            }),
-                            species: [],
-                            threatenedSpecies: []
-                        }
-                    })
-                }
-            });
-            // this is mapping the data returned from the DB call and molding it to fit the schema
-            data.map(item => {
-                const species = item;
-                countObj.map(obj => {
-                    if(species.country === obj.country){
-                        obj.classes.map(className => {
-                            if(species.className === className.class){
-                                className.species.push(species)
-                                className.speciesCount++
-                                className.threatLevels.map(threatRank => {
-                                    if(species.redlistCategory === threatRank.rank){
-                                        className.threatenedSpecies.push(species)
-                                        className.threatenedCount++
-                                        threatRank.count++
-                                        }
-                                    })
-                            }
-                        })
-                    }
-                })
-            });
-            return countObj
+            return dataFormatHelper(data, filter);
         })
 };
 
@@ -193,52 +109,51 @@ function allCountsByClass(){
 
 // WORK IN PROGRESS
 
-// function dataFormatHelper(data, filter){
-//     const filterVar = filter;
-//     const filterObj = {
-//         class: taxClass,
-//         habitat: habitatCodes,
-//         country: crbArry
-//     };
-//     const objArry = filterObj[filterVar].map(item => {
-//         return {
-//             [filterVar]: item,
-//             classes: taxClass.map(className => {
-//                 return {
-//                     class: className,
-//                     speciesCount: 0,
-//                     threatenedCount: 0,
-//                     threatLevels: redlistRanks.map(rank => {
-//                         return { 
-//                             rank, 
-//                             count: 0
-//                         }
-//                     }),
-//                     species: [],
-//                     threatenedSpecies: []
-//                     }
-//                 })
-//             }
-//         })
-        
-//         data.map(item => {
-//             objArry.map(obj => {
-//                 if(`${item[filterVar]}` === `${obj[filterVar]}`){
-//                     obj.classes.map(className => {
-//                         if(item.className === className.class){
-//                             className.species.push(item)
-//                             className.speciesCount++
-//                             className.threatLevels.map(threatRank => {
-//                                     if(species.redlistCategory === threatRank.rank){
-//                                         className.threatenedSpecies.push(species)
-//                                         className.threatenedCount++
-//                                         threatRank.count++
-//                                         }
-//                                     })
-//                         }
-//                     })
-//                 }
-//             })
-//         });
-//         return objArry
-// };
+const filterObj = {
+    class: taxClass,
+    habitat: habitatCodes,
+    country: crbArry
+};
+
+function dataFormatHelper(data, filter){
+    const objArry = filterObj[filter].map(item => {
+        return {
+            [filter]: item,
+            classes: taxClass.map(className => {
+                return {
+                    class: className,
+                    speciesCount: 0,
+                    threatenedCount: 0,
+                    threatLevels: redlistRanks.map(rank => {
+                        return { 
+                            rank, 
+                            count: 0
+                        }
+                    }),
+                    species: [],
+                    threatenedSpecies: []
+                    }
+                })
+            }
+        });
+        data.map(item => {
+            objArry.map(obj => {
+                if(`${item[filter]}` === `${obj[filter]}`){
+                    obj.classes.map(className => {
+                        if(item.className === className.class){
+                            className.species.push(item)
+                            className.speciesCount++
+                            className.threatLevels.map(threatRank => {
+                                    if(item.redlistCategory === threatRank.rank){
+                                        className.threatenedSpecies.push(item)
+                                        className.threatenedCount++
+                                        threatRank.count++
+                                        }
+                                    })
+                        }
+                    })
+                }
+            })
+        });
+        return objArry
+};
